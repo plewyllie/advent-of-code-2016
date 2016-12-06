@@ -18,7 +18,7 @@ if __name__ == '__main__':
     else:
         inputd = init(FILE)
 
-    inputd_list = [x for x in inputd.splitlines()]
+    inputd_list = inputd.splitlines()
 
     message = ""
     dics = [collections.defaultdict(int) for _ in range(0, len(inputd_list[0]))]
