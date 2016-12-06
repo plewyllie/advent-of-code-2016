@@ -24,7 +24,7 @@ if __name__ == '__main__':
     dics = [collections.defaultdict(int) for _ in range(0, len(inputd_list[0]))]
     for line in inputd_list:
         for i, c in enumerate(line):
-            dics[i][c] += 1
+            dics[i][c] += 1 # Could have used "Counter" class from collections to avoid sorting later
 
     for d in dics:
         message += ''.join([v[0] for v in sorted(d.items(), key=lambda kv: (kv[1], kv[0]))][0])
