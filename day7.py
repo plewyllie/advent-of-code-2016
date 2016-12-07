@@ -22,6 +22,19 @@ def str_has_ABBA(s):
     else:
         return False
 
+def str_has_ABA(s):
+    res = re.search(r'(.)(?!\1)(.)\1', s)
+    if DEBUG:
+        print("matching on " + s)
+    if res:
+        print("Matched " + res.group())
+        return res.group()
+    else:
+        return False
+
+def str_has_BAB_(s, bab):
+    pass
+
 class IPv7:
 
     def __init__(self, ipv7str):
@@ -29,24 +42,28 @@ class IPv7:
         self.ipv7str = ipv7str
         iterator = re.finditer(r'\[.*?\]', ipv7str)
         start = 0
-        no_hypernet = True
         self.tls = False
+
+        supernets = []
+        hypernets = []
+
         for patt in iterator:
             str1 = ipv7str[start:patt.start()]
             str2 = ipv7str[patt.start() + 1:patt.end() - 1] # avoid []
-
-            if str_has_ABBA(str2):
-                self.tls = False
-                no_hypernet = False
-                break
-            elif str_has_ABBA(str1):
-                self.tls = True
-
             start = patt.end()
+            supernets.append(str1)
+            hypernets.append(str2)
+        supernets.append(ipv7str[start:])
 
-        if no_hypernet and str_has_ABBA(ipv7str[start:]):
-            self.tls = True
+        for supernet in supernets:
+            if str_has_ABBA(supernet):
+                self.tls = True
+        for hypernet in hypernets:
+            if str_has_ABBA(hypernet):
+                self.tls = False
 
+            #if aba and str_has_BAB(str2, aba):
+             #   self.ssl = True
 
     def tls_support(self):
         return self.tls
