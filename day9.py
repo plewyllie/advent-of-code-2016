@@ -31,17 +31,37 @@ def decompress(line):
     return uncompressed
 
 def decompress_markers(line):
+    uncompressed = ""
+    it = re.finditer(r'\(([0-9]+x[0-9]+)\)', line)
+    start = 0
+    for patt in it:
+        if start > patt.start(): # previous iteration went over this marker
+            continue
+        uncompressed += line[start:patt.start()]
+        numbers = patt.group(1).split('x')
+        str_len_to_unc = numbers[0]
+        times_to_unc = numbers[1]
+
+        uncompressed += decompress_markers(line[patt.end():patt.end() + int(str_len_to_unc)]) * int(times_to_unc)
+        start = patt.end() + int(str_len_to_unc)
+
+    uncompressed += line[start:] # add trailing chars in line
+    return uncompressed
+
+def decompress_markers_length(line):
     uncompressed_length = 0
     it = re.finditer(r'\(([0-9]+x[0-9]+)\)', line)
     start = 0
     for patt in it:
         if start > patt.start(): # previous iteration went over this marker
             continue
+        if start < patt.start():
+            uncompressed_length += decompress_markers_length(line[start:patt.start()]) # /!\ I was skipping this. If the new pattern is further than the previous uncompression length
         numbers = patt.group(1).split('x')
         str_len_to_unc = numbers[0]
         times_to_unc = numbers[1]
 
-        uncompressed_length += decompress_markers(line[patt.end():patt.end() + int(str_len_to_unc)]) * int(times_to_unc)
+        uncompressed_length += decompress_markers_length(line[patt.end():patt.end() + int(str_len_to_unc)]) * int(times_to_unc)
         start = patt.end() + int(str_len_to_unc)
 
     uncompressed_length += len(line[start:]) # add trailing chars in line
@@ -57,8 +77,8 @@ if __name__ == '__main__':
 
     decompressed_length = 0
     for line in inputd_lines:
+        decompressed_length += decompress_markers_length(line)
         #print(decompress_markers(line))
-        decompressed_length += decompress_markers(line)
     print("Decompressed length is " + str(decompressed_length))
 
 
