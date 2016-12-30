@@ -4,12 +4,12 @@
 FILE = 'input.txt'
 
 DEBUG = True
-MAGIC_NUMBER = 10
+MAGIC_NUMBER = 1352
 
 MAZE = {}
 
-MAZE_COLS = 10
-MAZE_LINES = 10
+MAZE_COLS = 200
+MAZE_LINES = 200
 DEST_X = 4
 DEST_Y = 7
 
@@ -26,10 +26,8 @@ class Node:
         global MAGIC_NUMBER
         formula += MAGIC_NUMBER
         if bin(formula)[2:].count('1') % 2 == 0:
-            print(self.x, self.y, "Is not a Wall!")
             return False
 
-        print(self.x, self.y, "Is a Wall!")
         return True
 
     def set_dijkstra_dist(self, dist):
@@ -43,18 +41,11 @@ class Node:
             return
         if (not(MAZE[neighb_x][neighb_y].is_wall())
             and (MAZE[neighb_x][neighb_y].dist > self.dist + 1)):
-            print("I am ", self.x, self.y)
-            print("Setting dist for ", neighb_x, neighb_y, "to", self.dist + 1)
             MAZE[neighb_x][neighb_y].dist = self.dist + 1
 
     def check_neighbors(self):
         neighb_x = self.x
         neighb_y = self.y
-        #print("I am ", self.x, self.y)
-        #print("Checking neighbors", neighb_x + 1, neighb_y)
-        #print("Checking neighbors", neighb_x - 1, neighb_y)
-        #print("Checking neighbors", neighb_x, neighb_y + 1)
-        #print("Checking neighbors", neighb_x, neighb_y - 1)
 
         self.check_neighbor(neighb_x + 1, neighb_y)
         self.check_neighbor(neighb_x - 1, neighb_y)
@@ -67,10 +58,8 @@ def init(file):
         input = f.read()
     return input
 
-if __name__ == '__main__':
-    MAZE = [[Node(x,y) for y in range(MAZE_COLS)] for x in range(MAZE_COLS)]
-    MAZE[1][1].dist = 0 # starting square, distance is 0
-
+def dijkstra_part_1():
+    global MAZE
     # make list of unvisited nodes and remove walls
     unvisited = {x for sublist in MAZE for x in sublist if not x.is_wall()}
     # dijkstra
@@ -83,14 +72,44 @@ if __name__ == '__main__':
                 min_dist = cur_node.dist
 
         if len(unvisited) == 0 or min_dist == 9999999:
-            print("Could not solve the challenge")
+            print("Could not solve the challenge, or try with bigger maze")
             exit()
 
         cur_node.check_neighbors()
         unvisited.remove(cur_node)
-        print("Distance to",cur_node.x,",",cur_node.y,"is",cur_node.dist)
-
     print("Distance to",cur_node.x,",",cur_node.y,"is",cur_node.dist)
+
+def dijkstra_part_2():
+    global MAZE
+    # make list of unvisited nodes and remove walls
+    unvisited = {x for sublist in MAZE for x in sublist if not x.is_wall()}
+    # dijkstra
+    cur_node = MAZE[1][1]
+    while len(unvisited) > 0: # in this part we visit all the nodes
+        min_dist = 9999999
+        for node in unvisited:
+            if node.dist < min_dist:
+                cur_node = node
+                min_dist = cur_node.dist
+        
+        if min_dist == 9999999:
+            break
+        cur_node.check_neighbors()
+        unvisited.remove(cur_node)
+        
+
+    # Dijkstra is done. Iterate on MAZE and count all the nodes with distance 50
+    print("There are", len([x for sublist in MAZE for x in sublist if x.dist <= 50]), "nodes at length 50")
+
+
+
+if __name__ == '__main__':
+    MAZE = [[Node(x,y) for y in range(MAZE_COLS)] for x in range(MAZE_COLS)]
+    MAZE[1][1].dist = 0 # starting square, distance is 0
+
+    #dijkstra_part_1()
+    dijkstra_part_2()
+
 
 
 
